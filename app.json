@@ -2,7 +2,7 @@
   "expo": {
     "name": "Assign Meter",
     "slug": "assignMeter",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "assignmeter",
@@ -52,6 +52,12 @@
         "projectId": "4c488819-adff-4a74-9cc1-4ca3f6103bf5"
       }
     },
-    "owner": "ajoy974"
+    "owner": "ajoy974",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4c488819-adff-4a74-9cc1-4ca3f6103bf5"
+    }
   }
 }

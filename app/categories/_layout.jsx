@@ -1,11 +1,15 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { Stack } from 'expo-router';
+import { View, Text } from "react-native";
+import React from "react";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
 const CategoryPagelayout = () => {
   return (
-    <Stack screenOptions={{ headerShown: true }} />
-  )
-}
+    <>
+      <StatusBar style={"dark"} />
+      <Stack screenOptions={{ headerShown: true, headerTitleAlign: "center",headerStyle: { } }} />
+    </>
+  );
+};
 
 export default CategoryPagelayout;
