@@ -1,12 +1,16 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { View, FlatList, TouchableOpacity, StyleSheet } from "react-native";
+import { Link, useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { useEffect, useState } from "react";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "../../components/Text";
-import { Link, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import * as SecureStore from "expo-secure-store";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from "react-native-google-mobile-ads";
 export default function Home() {
   const router = useRouter();
   const [greeting, setGreeting] = useState("Good Morning");
@@ -34,12 +38,18 @@ export default function Home() {
   }, []);
 
   const categories = [
-    { id: 1, name: "METER", icon: "meter-electric" },
-    { id: 2, name: "CT", icon: "current-ac" },
-    { id: 3, name: "NIC", icon: "chip" },
-    { id: 4, name: "PT", icon: "flash" },
-    { id: 5, name: "SIM", icon: "sim" },
-    { id: 5, name: "SEAL", icon: "lock" },
+    { id: 1, name: "METER", label: "Meter", icon: "meter-electric" },
+    { id: 2, name: "CT", label: "CT", icon: "current-ac" },
+    { id: 3, name: "NIC", label: "NIC", icon: "chip" },
+    { id: 4, name: "PT", label: "PT", icon: "flash" },
+    { id: 5, name: "SIM", label: "SIM", icon: "sim" },
+    { id: 5, name: "SEAL", label: "SEAL", icon: "lock" },
+    {
+      id: 6,
+      name: "AssignLocation",
+      label: "Assign Location",
+      icon: "location-enter",
+    },
   ];
 
   return (
@@ -48,7 +58,13 @@ export default function Home() {
       <View
         style={[
           styles.header,
-          { display: "flex", flexDirection: "row", gap: 10, alignItems:"center", justifyContent:"space-between" },
+          {
+            display: "flex",
+            flexDirection: "row",
+            gap: 10,
+            alignItems: "center",
+            justifyContent: "space-between",
+          },
         ]}
       >
         <View style={{ display: "flex", flexDirection: "row", gap: 0 }}>
@@ -56,14 +72,14 @@ export default function Home() {
             source={require("../../assets/images/image.png")}
             style={{ width: 50, height: 50, borderRadius: 100 }}
           />
-          <View style={{marginLeft: 10}}>
+          <View style={{ marginLeft: 10 }}>
             <Text styles={styles.greeting}>{greeting},</Text>
             <Text styles={styles.username} bold>
               {userName}
             </Text>
           </View>
         </View>
-        <TouchableOpacity onPress={()=> router.replace("/meterStatus")}>
+        <TouchableOpacity onPress={() => router.replace("/meterStatus")}>
           <MaterialCommunityIcons name="magnify" size={30} color="#2C6BED" />
         </TouchableOpacity>
       </View>
@@ -73,7 +89,6 @@ export default function Home() {
         <Text styles={styles.categoryTitle} bold>
           Categories
         </Text>
-
         <FlatList
           data={categories}
           numColumns={2}
@@ -91,11 +106,15 @@ export default function Home() {
                 </View>
 
                 <Text bold styles={styles.cardText}>
-                  {item.name}
+                  {item.label}
                 </Text>
               </TouchableOpacity>
             </Link>
           )}
+        />
+        <BannerAd
+          unitId={"ca-app-pub-8386909400947159/3079799956"}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
         />
       </View>
     </SafeAreaView>
@@ -120,7 +139,7 @@ const styles = StyleSheet.create({
   },
 
   username: {
-    fontSize: 18
+    fontSize: 18,
   },
 
   categorySection: {

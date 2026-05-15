@@ -1,8 +1,24 @@
-import { AntDesign, Feather, Lucide, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Feather,
+  Lucide,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { CameraView, useCameraPermissions, Camera } from "expo-camera";
 import * as SecureStore from "expo-secure-store";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
+import {
+  InterstitialAd,
+  AdEventType,
+  TestIds,
+  BannerAd,
+  BannerAdSize,
+} from "react-native-google-mobile-ads";
+
+const interstitial = InterstitialAd.createForAdRequest(
+  "ca-app-pub-8386909400947159/6680133618",
+);
 import {
   Alert,
   Dimensions,
@@ -83,7 +99,7 @@ const MeterCategory = ["CT", "METER", "NIC", "PT", "SEAL", "SIM"];
 
 const LTWCForm = () => {
   const [submitting, setSubmitting] = useState(false);
-const [galleryPermission, setGalleryPermission] = useState(null);
+  const [galleryPermission, setGalleryPermission] = useState(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [store, setStore] = useState("");
   const [agency, setAgency] = useState("");
@@ -103,50 +119,76 @@ const [galleryPermission, setGalleryPermission] = useState(null);
 
   const [focusedInput, setFocusedInput] = useState("");
 
-useEffect(() => {
-  (async () => {
-    const camera = await requestPermission();
-    const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  useEffect(() => {
+    (async () => {
+      const camera = await requestPermission();
+      const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    setGalleryPermission(gallery.status === "granted");
-  })();
-}, []);
-  
-const pickAndScanQR = async () => {
-  if (!galleryPermission) {
-    Alert.alert("Permission Required", "Allow gallery access");
-    return;
-  }
+      setGalleryPermission(gallery.status === "granted");
+    })();
+  }, []);
 
-  try {
-    const image = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      quality: 1,
-    });
+  const [loaded, setLoaded] = useState(false);
 
-    if (image.canceled) return;
+  useEffect(() => {
+    const unsubscribeLoaded = interstitial.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        setLoaded(true);
+      },
+    );
 
-    const uri = image.assets[0].uri;
+    const unsubscribeClosed = interstitial.addAdEventListener(
+      AdEventType.CLOSED,
+      () => {
+        setLoaded(false);
+        interstitial.load();
+      },
+    );
 
-    const scanned = await Camera.scanFromURLAsync(uri, [
-      "qr",
-      "code128",
-      "code39",
-      "ean13",
-    ]);
+    interstitial.load();
 
-    if (scanned.length > 0) {
-      const finalData = scanned[0].data.replace(/Meter Sr.no.:/gm, "");
+    return () => {
+      unsubscribeLoaded();
+      unsubscribeClosed();
+    };
+  }, []);
 
-      setMeter((pre) => (pre ? pre + "," + finalData : finalData));
-    } else {
-      Alert.alert("No QR Found", "Try another image");
+  const pickAndScanQR = async () => {
+    if (!galleryPermission) {
+      Alert.alert("Permission Required", "Allow gallery access");
+      return;
     }
-  } catch (err) {
-    console.log(err);
-    Alert.alert("Error", "Failed to scan image");
-  }
-};
+
+    try {
+      const image = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        quality: 1,
+      });
+
+      if (image.canceled) return;
+
+      const uri = image.assets[0].uri;
+
+      const scanned = await Camera.scanFromURLAsync(uri, [
+        "qr",
+        "code128",
+        "code39",
+        "ean13",
+      ]);
+
+      if (scanned.length > 0) {
+        const finalData = scanned[0].data.replace(/Meter Sr.no.:/gm, "");
+
+        setMeter((pre) => (pre ? pre + "," + finalData : finalData));
+      } else {
+        Alert.alert("No QR Found", "Try another image");
+      }
+    } catch (err) {
+      console.log(err);
+      Alert.alert("Error", "Failed to scan image");
+    }
+  };
   const handleScan = ({ data }) => {
     const finalData = data.replace(/Meter Sr.no.:/gm, "");
     setMeter((pre) => pre + "," + finalData);
@@ -168,7 +210,9 @@ const pickAndScanQR = async () => {
           storeLocation: store,
           agency,
           installerId: mobile,
-          meterNumber: meter.split(/[,\s]+/).filter((item) => item.trim() !== ""),
+          meterNumber: meter
+            .split(/[,\s]+/)
+            .filter((item) => item.trim() !== ""),
           equipCategory: equipCategory,
           meterType,
           installationType,
@@ -181,6 +225,9 @@ const pickAndScanQR = async () => {
     if (res.ok) {
       setSubmitting(false);
       Alert.alert("Data Inserted Successfully", data.message);
+      if (loaded) {
+        interstitial.show();
+      }
       setStore("");
       setAgency("");
       setMobile("");
@@ -484,6 +531,11 @@ const pickAndScanQR = async () => {
             {submitting ? "Submitting..." : "Submit"}
           </Text>
         </TouchableOpacity>
+
+        <BannerAd
+          unitId={"ca-app-pub-8386909400947159/3079799956"}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+        />
       </ScrollView>
 
       {openScaner && (
