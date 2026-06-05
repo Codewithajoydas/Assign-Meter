@@ -5,8 +5,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import * as SecureStore from "expo-secure-store";
 import Text from "../../components/Text";
 import { Image } from "expo-image";
-import userData from "../../assets/user.json"
+import userData from "../../assets/user.json";
+import {
+  RewardedAd,
+  AdEventType,
+  TestIds,
+  RewardedAdEventType,
+} from "react-native-google-mobile-ads";
 
+const rewarded = RewardedAd.createForAdRequest(
+  __DEV__ ? TestIds.REWARDED : "ca-app-pub-8386909400947159/5846878143",
+);
 const formatDate = (date) => {
   if (!date) return "-";
 
@@ -29,9 +38,29 @@ const MeterScreen = () => {
 
   useEffect(() => {
     if (meternumber) {
-      searchMeter();
+      showAdThenLoadData();
     }
   }, [meternumber]);
+
+  const showAdThenLoadData = () => {
+    const loadedListener = rewarded.addAdEventListener(
+      RewardedAdEventType.LOADED,
+      () => {
+        rewarded.show();
+      },
+    );
+
+    const closedListener = rewarded.addAdEventListener(
+      RewardedAdEventType.EARNED_REWARD,
+      () => {
+        loadedListener();
+        closedListener();
+        searchMeter(); // Load content after ad closes
+      },
+    );
+
+    rewarded.load();
+  };
 
   const searchMeter = async () => {
     try {
@@ -85,11 +114,25 @@ const MeterScreen = () => {
             <Row label="Installation" value={meter.installationType} />
             <Row label="Location" value={meter.storeLocation} />
             <Row label="Agency" value={meter.agency} />
-                <Row label="Installer ID" value={meter.installerId} />
-                <Row label="Installer Name" value={userData.filter((user) => user.mobileNumber === meter?.installerId)[0]?.name} />
-                
-            <Row label="Meter Submitted At" value={formatDate(meter.createdAt)} />
-            <Row label="Meter Updated At " value={formatDate(meter.updatedAt)} />
+            <Row label="Installer ID" value={meter.installerId} />
+            <Row
+              label="Installer Name"
+              value={
+                userData.filter(
+                  (user) => user.mobileNumber === meter?.installerId,
+                )[0]?.name
+              }
+            />
+
+            <Row
+              label="Meter Submitted At"
+              value={formatDate(meter.createdAt)}
+            />
+            <Row
+              label="Meter Updated At "
+              value={formatDate(meter.updatedAt)}
+            />
+            <Row label="Remarks " value={meter?.remarks??"-"} />
             <View style={styles.row}>
               <Text bold styles={styles.label}>
                 Status

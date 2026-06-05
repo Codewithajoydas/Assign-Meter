@@ -209,7 +209,7 @@ const LTWCForm = () => {
         body: JSON.stringify({
           storeLocation: store,
           agency,
-          installerId: mobile,
+          installerId: mobile.replace(/[^0-9]/g, ""),
           meterNumber: meter
             .split(/[,\s]+/)
             .filter((item) => item.trim() !== ""),
@@ -521,7 +521,6 @@ const LTWCForm = () => {
         <TouchableOpacity
           style={[
             styles.button,
-            { marginBottom: 110 },
             submitting && styles.buttonDisabled,
           ]}
           onPress={submitData}
@@ -532,53 +531,72 @@ const LTWCForm = () => {
           </Text>
         </TouchableOpacity>
 
-        <BannerAd
-          unitId={"ca-app-pub-8386909400947159/3079799956"}
-          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-        />
+        <View style={{ alignItems: "center", marginTop: 20 }}>
+          <BannerAd
+            unitId={
+              __DEV__
+                ? TestIds.BANNER
+                : "ca-app-pub-8386909400947159/3079799956"
+            }
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          />
+        </View>
       </ScrollView>
 
       {openScaner && (
-        <>
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 100,
+          }}
+        >
+          <CameraView
+            style={{ flex: 1 }}
+            barcodeScannerSettings={{
+              barcodeTypes: ["qr", "code128", "code39", "ean13"],
+            }}
+            onBarcodeScanned={handleScan}
+          />
+
           <View
             style={{
               position: "absolute",
-              top: 0,
-              left: 0,
-              zIndex: 100,
-              overflow: "hidden",
-              width: Dimensions.get("window").width,
-              height: Dimensions.get("window").height,
+              bottom: 40,
+              width: "100%",
+              alignItems: "center",
             }}
           >
-            <CameraView
-              style={{ backgroundColor: "transparent", flex: 1 }}
-              barcodeScannerSettings={{
-                barcodeTypes: ["qr", "code128", "code39", "ean13"],
-              }}
-              onBarcodeScanned={handleScan}
+            <BannerAd
+              unitId={
+                __DEV__
+                  ? TestIds.BANNER
+                  : "ca-app-pub-8386909400947159/3079799956"
+              }
+              size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
             />
-
-            <TouchableOpacity
-              onPress={() => setOpenScaner(false)}
-              style={{
-                position: "absolute",
-                top: 10,
-                right: 10,
-                backgroundColor: "black",
-                borderRadius: 6,
-                width: 50,
-                height: 50,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Text style={{ color: "white", fontSize: 20 }}>
-                <MaterialCommunityIcons name="close" size={25} />
-              </Text>
-            </TouchableOpacity>
           </View>
-        </>
+
+          <TouchableOpacity
+            onPress={() => setOpenScaner(false)}
+            style={{
+              position: "absolute",
+              top: 10,
+              right: 10,
+              backgroundColor: "black",
+              width: 50,
+              height: 50,
+              borderRadius: 6,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <MaterialCommunityIcons name="close" size={25} color="white" />
+          </TouchableOpacity>
+        </View>
       )}
     </KeyboardAvoidingView>
   );

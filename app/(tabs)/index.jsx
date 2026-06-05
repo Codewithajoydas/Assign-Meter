@@ -85,6 +85,10 @@ export default function Home() {
       </View>
 
       {/* Categories */}
+      <BannerAd
+        unitId={"ca-app-pub-8386909400947159/3079799956"}
+        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+      />
       <View style={styles.categorySection}>
         <Text styles={styles.categoryTitle} bold>
           Categories
@@ -112,10 +116,6 @@ export default function Home() {
             </Link>
           )}
         />
-        <BannerAd
-          unitId={"ca-app-pub-8386909400947159/3079799956"}
-          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-        />
       </View>
     </SafeAreaView>
   );
@@ -125,12 +125,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F6F7FB",
-    paddingHorizontal: 16,
   },
 
   header: {
     marginTop: 10,
     marginBottom: 25,
+    paddingHorizontal: 16,
   },
 
   greeting: {
@@ -144,6 +144,8 @@ const styles = StyleSheet.create({
 
   categorySection: {
     flex: 1,
+    paddingHorizontal: 16,
+    marginTop: 20,
   },
 
   categoryTitle: {

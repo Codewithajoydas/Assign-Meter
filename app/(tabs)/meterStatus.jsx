@@ -395,7 +395,7 @@ const MeterStatus = () => {
                       setStore("");
                       setMeterCategory("");
                       setInstallationType("");
-                      fetchData()
+                      fetchData();
                     }}
                   >
                     <Text styles={{ color: "red" }}>Reset</Text>
