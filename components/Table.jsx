@@ -2,12 +2,22 @@ import { StyleSheet, View, FlatList, TouchableOpacity } from "react-native";
 import Text from "./Text";
 import { useRouter } from "expo-router";
 
+const BG = "#F6F7F9";
+const SURFACE = "#FFFFFF";
+const INK = "#2B3240";
+const INK_FAINT = "#8A93A3";
+const ACCENT = "#3E7CA6";
+const LINE = "#EEF0F3";
+
 export default function Table({ headers = [], rows = [], loading = false }) {
   const router = useRouter();
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text bold>Loading...</Text>
+        <Text bold styles={{ color: INK_FAINT }}>
+          Loading...
+        </Text>
       </View>
     );
   }
@@ -16,25 +26,33 @@ export default function Table({ headers = [], rows = [], loading = false }) {
     <TouchableOpacity
       onPress={() => router.push(`/categories/${row[1]}`)}
       style={[styles.row, rowIndex % 2 === 0 ? styles.evenRow : styles.oddRow]}
+      activeOpacity={0.6}
     >
-      {row.map((cell, cellIndex) => (
-        <Text
-          key={cellIndex}
-          styles={[
-            styles.cell,
-            {
-              textTransform: "capitalize",
-              color: typeof cell === "number" ? "gray" : "#000",
-              fontWeight: "650",
-            },
-            cell === "active" && styles.active,
-            cell === "pending" && styles.pending,
-            cell === "rejected" && styles.rejected,
-          ]}
-        >
-          {cell}
-        </Text>
-      ))}
+      {row.map((cell, cellIndex) => {
+        const isRemarks = cellIndex === row.length - 1 && row.length > 3;
+        return (
+          <View
+            key={cellIndex}
+            style={[styles.cell, isRemarks && styles.remarksCell]}
+          >
+            <Text
+              styles={[
+                styles.cellText,
+                {
+                  color: typeof cell === "number" ? INK_FAINT : INK,
+                },
+                cell === "active" && styles.active,
+                cell === "pending" && styles.pending,
+                cell === "rejected" && styles.rejected,
+                isRemarks && styles.remarksText,
+              ]}
+              numberOfLines={isRemarks ? 2 : 1}
+            >
+              {cell || (isRemarks ? "-" : cell)}
+            </Text>
+          </View>
+        );
+      })}
     </TouchableOpacity>
   );
 
@@ -44,8 +62,8 @@ export default function Table({ headers = [], rows = [], loading = false }) {
       <View style={[styles.row, styles.headerRow]}>
         {headers.map((header, index) => (
           <View key={index} style={[styles.cell, styles.headerCell]}>
-            <Text bold>{header.icon}</Text>
-            <Text bold styles={{ color: "#fff" }}>
+            {header.icon}
+            <Text bold styles={{ color: "#fff", fontSize: 13 }}>
               {header.name}
             </Text>
           </View>
@@ -59,9 +77,12 @@ export default function Table({ headers = [], rows = [], loading = false }) {
           keyExtractor={(_, index) => index.toString()}
           renderItem={renderRow}
           showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       ) : (
-        <Text styles={{ textAlign: "center", padding: 10 }}>No Data Found</Text>
+        <View style={styles.emptyState}>
+          <Text styles={styles.emptyText}>No Data Found</Text>
+        </View>
       )}
     </View>
   );
@@ -69,69 +90,114 @@ export default function Table({ headers = [], rows = [], loading = false }) {
 
 const styles = StyleSheet.create({
   table: {
-    // marginTop: 10,
-    borderWidth: 1,
-    borderColor: "#fff",
-    borderRadius: 6,
+    borderRadius: 14,
     overflow: "hidden",
     height: "100%",
-    flex:1
+    flex: 1,
+    backgroundColor: SURFACE,
   },
 
   loadingContainer: {
     justifyContent: "center",
     alignItems: "center",
     height: 100,
+    flex: 1,
   },
 
   row: {
     flexDirection: "row",
-    padding: 10,
-    justifyContent: "space-around",
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    alignItems: "center",
   },
 
   headerRow: {
-    backgroundColor: "#6F9EF5",
+    backgroundColor: ACCENT,
+  },
+
+  separator: {
+    height: 1,
+    backgroundColor: LINE,
+    marginHorizontal: 10,
   },
 
   cell: {
+    flex: 1,
     textAlign: "center",
-    fontSize: 14,
     alignItems: "center",
     flexDirection: "row",
-    gap: 10,
+    justifyContent: "center",
+    gap: 6,
+  },
+
+  remarksCell: {
+    flex: 1.4,
   },
 
   headerCell: {
-    fontWeight: "700",
-    fontSize: 15,
-    color: "#fff",
+    gap: 6,
+  },
+
+  cellText: {
+    fontSize: 13.5,
+    textTransform: "capitalize",
+    textAlign: "center",
+  },
+
+  remarksText: {
+    fontSize: 12,
+    color: INK_FAINT,
+    textTransform: "none",
+    textAlign: "left",
   },
 
   evenRow: {
-    backgroundColor: "#fff",
+    backgroundColor: SURFACE,
   },
 
-  oddRow: {},
+  oddRow: {
+    backgroundColor: BG,
+  },
 
   active: {
-    backgroundColor: "#A8DF8E",
+    backgroundColor: "#DCFCE7",
+    color: "#166534",
     paddingHorizontal: 10,
-    borderRadius: 6,
+    borderRadius: 8,
     paddingVertical: 4,
+    overflow: "hidden",
   },
 
   pending: {
-    backgroundColor: "#FFDBC5",
+    backgroundColor: "#FEF3C7",
+    color: "#B45309",
     paddingHorizontal: 10,
-    borderRadius: 6,
+    borderRadius: 8,
     paddingVertical: 4,
+    overflow: "hidden",
   },
 
   rejected: {
-    backgroundColor: "#DDDDDD",
+    backgroundColor: "#FEE2E2",
+    color: "#B91C1C",
     paddingHorizontal: 10,
-    borderRadius: 6,
+    borderRadius: 8,
     paddingVertical: 4,
+    overflow: "hidden",
+  },
+
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 30,
+  },
+
+  emptyText: {
+    textAlign: "center",
+    padding: 10,
+    fontSize: 14,
+    color: INK_FAINT,
+    fontWeight: "600",
   },
 });

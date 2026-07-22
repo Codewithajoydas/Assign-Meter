@@ -10,7 +10,7 @@ const Text = ({ children, styles,bold, ...props  }) => {
     return null;
   }
   return (
-    <RNText {...props} style={[{ fontFamily: bold ? "nunitoBold" : "nunito" }, styles]}>
+    <RNText {...props} style={[ styles]}>
       {children}
     </RNText>
   );

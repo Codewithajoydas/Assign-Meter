@@ -1,16 +1,25 @@
+// app/(tabs)/index.jsx
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Image } from "expo-image";
+import { Image, ImageBackground } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "../../components/Text";
-import {
-  BannerAd,
-  BannerAdSize,
-  TestIds,
-} from "react-native-google-mobile-ads";
+
+const greetingIcons = {
+  "Good Morning": "weather-sunny",
+  "Good Afternoon": "weather-partly-cloudy",
+  "Good Evening": "weather-night",
+};
+
+// Fré Sonneveld — "black transmission towers under green sky", Unsplash
+// https://unsplash.com/photos/black-transmission-towers-under-green-sky-q6n8nIrDQHE
+const HEADER_BG =
+  "https://images.unsplash.com/photo-1574173799345-e672ea143892?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+
 export default function Home() {
   const router = useRouter();
   const [greeting, setGreeting] = useState("Good Morning");
@@ -19,21 +28,16 @@ export default function Home() {
   useEffect(() => {
     const getGreeting = () => {
       const hour = new Date().getHours();
-
       if (hour < 12) setGreeting("Good Morning");
       else if (hour < 18) setGreeting("Good Afternoon");
       else setGreeting("Good Evening");
     };
-
     getGreeting();
 
     const getName = async () => {
       const name = await SecureStore.getItemAsync("userData");
-      if (name) {
-        setUserName(JSON.parse(name).name);
-      }
+      if (name) setUserName(JSON.parse(name).name);
     };
-
     getName();
   }, []);
 
@@ -43,9 +47,9 @@ export default function Home() {
     { id: 3, name: "NIC", label: "NIC", icon: "chip" },
     { id: 4, name: "PT", label: "PT", icon: "flash" },
     { id: 5, name: "SIM", label: "SIM", icon: "sim" },
-    { id: 5, name: "SEAL", label: "SEAL", icon: "lock" },
+    { id: 6, name: "SEAL", label: "SEAL", icon: "lock" },
     {
-      id: 6,
+      id: 7,
       name: "AssignLocation",
       label: "Assign Location",
       icon: "location-enter",
@@ -53,42 +57,55 @@ export default function Home() {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View
-        style={[
-          styles.header,
-          {
-            display: "flex",
-            flexDirection: "row",
-            gap: 10,
-            alignItems: "center",
-            justifyContent: "space-between",
-          },
-        ]}
+    <View style={styles.container}>
+      {/* Hero background behind header only */}
+      <ImageBackground
+        source={{ uri: HEADER_BG }}
+        style={styles.hero}
+        contentFit="cover"
       >
-        <View style={{ display: "flex", flexDirection: "row", gap: 0 }}>
-          <Image
-            source={require("../../assets/images/image.png")}
-            style={{ width: 50, height: 50, borderRadius: 100 }}
-          />
-          <View style={{ marginLeft: 10 }}>
-            <Text styles={styles.greeting}>{greeting},</Text>
-            <Text styles={styles.username} bold>
-              {userName}
-            </Text>
+        <LinearGradient
+          colors={[
+            "rgba(11,18,32,0.75)",
+            "rgba(11,18,32,0.35)",
+            "rgba(246,247,249,1)",
+          ]}
+          locations={[0, 0.55, 1]}
+          style={StyleSheet.absoluteFill}
+        />
+        <SafeAreaView edges={["top"]} style={styles.header}>
+          <View style={styles.headerLeft}>
+            <View style={styles.avatarRing}>
+              <Image
+                source={require("../../assets/images/image.png")}
+                style={styles.avatar}
+              />
+            </View>
+            <View style={{ marginLeft: 12 }}>
+              <View style={styles.greetingRow}>
+                <MaterialCommunityIcons
+                  name={greetingIcons[greeting]}
+                  size={14}
+                  color="#E6E9EF"
+                />
+                <Text styles={styles.greeting}>{greeting}</Text>
+              </View>
+              <Text styles={styles.username} bold>
+                {userName}
+              </Text>
+            </View>
           </View>
-        </View>
-        <TouchableOpacity onPress={() => router.replace("/meterStatus")}>
-          <MaterialCommunityIcons name="magnify" size={30} color="#2C6BED" />
-        </TouchableOpacity>
-      </View>
+
+          <TouchableOpacity
+            style={styles.searchBtn}
+            onPress={() => router.replace("/meterStatus")}
+          >
+            <MaterialCommunityIcons name="magnify" size={22} color="#3E7CA6" />
+          </TouchableOpacity>
+        </SafeAreaView>
+      </ImageBackground>
 
       {/* Categories */}
-      <BannerAd
-        unitId={"ca-app-pub-8386909400947159/3079799956"}
-        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-      />
       <View style={styles.categorySection}>
         <Text styles={styles.categoryTitle} bold>
           Categories
@@ -98,17 +115,18 @@ export default function Home() {
           numColumns={2}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={{ paddingBottom: 40 }}
+          columnWrapperStyle={{ gap: 12 }}
+          showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <Link href={`/categories/${item.name}`} asChild>
-              <TouchableOpacity style={styles.card}>
+              <TouchableOpacity style={styles.card} activeOpacity={0.7}>
                 <View style={styles.iconBox}>
                   <MaterialCommunityIcons
                     name={item.icon}
-                    size={40}
-                    color="#2C6BED"
+                    size={30}
+                    color="#3E7CA6"
                   />
                 </View>
-
                 <Text bold styles={styles.cardText}>
                   {item.label}
                 </Text>
@@ -117,73 +135,125 @@ export default function Home() {
           )}
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
+
+const BG = "#F6F7F9";
+const SURFACE = "#FFFFFF";
+const INK = "#2B3240";
+const INK_SOFT = "#5B6472";
+const ACCENT = "#3E7CA6";
+const ACCENT_SOFT_BG = "#E9F1F6";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F6F7FB",
+    backgroundColor: BG,
+  },
+
+  hero: {
+    width: "100%",
+    paddingBottom: 28,
+    height: 180,
   },
 
   header: {
-    marginTop: 10,
-    marginBottom: 25,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  avatarRing: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 2,
+    borderColor: "rgba(255,255,255,0.7)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+  },
+
+  greetingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
   },
 
   greeting: {
-    fontSize: 14,
-    color: "#666",
+    fontSize: 13,
+    color: "#E6E9EF",
   },
 
   username: {
     fontSize: 18,
+    color: "#FFFFFF",
+    marginTop: 2,
+  },
+
+  searchBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: SURFACE,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
 
   categorySection: {
     flex: 1,
     paddingHorizontal: 16,
-    marginTop: 20,
+    marginTop: -8,
   },
 
   categoryTitle: {
     fontSize: 13,
-    color: "#888",
-    marginBottom: 10,
+    color: INK_SOFT,
+    marginBottom: 12,
   },
 
   card: {
     flex: 1,
-    backgroundColor: "#fff",
-    margin: 6,
-    height: 120,
+    backgroundColor: SURFACE,
+    marginBottom: 12,
+    height: 118,
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
-
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
+    shadowColor: "#1A2333",
+    shadowOpacity: 0.05,
     shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-
-    elevation: 3,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 1,
   },
 
   iconBox: {
-    backgroundColor: "#F2F4F7",
+    backgroundColor: ACCENT_SOFT_BG,
     padding: 12,
-    borderRadius: 12,
-    marginBottom: 6,
-  },
-
-  icon: {
-    width: 40,
-    height: 40,
+    borderRadius: 14,
+    marginBottom: 8,
   },
 
   cardText: {
-    fontSize: 15,
+    fontSize: 14,
+    color: INK,
   },
 });

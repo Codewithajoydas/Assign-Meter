@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   Alert,
@@ -15,6 +14,8 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -59,9 +60,7 @@ const Login = () => {
           "userData",
           JSON.stringify(data.data.user),
         );
-
         Alert.alert("Success", "Login Successfully");
-
         router.replace("/");
       } else {
         Alert.alert("Login Failed", data.message);
@@ -75,7 +74,9 @@ const Login = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <>
+      <StatusBar style={"auto"} />
+      <SafeAreaView style={{ flex: 1 }}>
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -98,7 +99,7 @@ const Login = () => {
           autoCapitalize="none"
           autoCorrect={false}
           placeholderTextColor={"#000"}
-          style={[styles.input, {color: "#000"}]}
+          style={[styles.input, { color: "#000" }]}
         />
 
         <View style={styles.passwordContainer}>
@@ -108,7 +109,7 @@ const Login = () => {
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
             placeholderTextColor={"#000"}
-            style={[styles.passwordInput, {color: "#000"}]}
+            style={[styles.passwordInput, { color: "#000" }]}
           />
 
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
@@ -133,6 +134,7 @@ const Login = () => {
         </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
+    </>
   );
 };
 
