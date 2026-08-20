@@ -147,9 +147,10 @@ const LTWCForm = () => {
         }),
       ]),
     ).start();
-  }, []);
+  }, [scanAnim]);
 
   // then swap the static View for:
+  // eslint-disable-next-line no-unused-expressions
   <Animated.View
     style={[
       styles.scanLine,
@@ -189,7 +190,7 @@ const LTWCForm = () => {
 
   useEffect(() => {
     (async () => {
-      const camera = await requestPermission();
+      
       const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       setGalleryPermission(gallery.status === "granted");
@@ -249,7 +250,7 @@ const LTWCForm = () => {
     const token = await SecureStore.getItemAsync("token");
     setSubmitting(true);
     const res = await fetch(
-      "https://assign-meter-backend.onrender.com/api/meterassign",
+      "http://192.168.1.11:9000/api/meterassign",
       {
         method: "POST",
         headers: {
@@ -683,12 +684,6 @@ const styles = {
     backgroundColor: "rgba(0,0,0,0.55)",
   },
 
-  scannerFrame: {
-    width: "76%",
-    aspectRatio: 1.4,
-    alignSelf: "center",
-  },
-
   corner: {
     position: "absolute",
     width: 28,
@@ -738,18 +733,7 @@ const styles = {
     shadowOffset: { width: 0, height: 0 },
   },
 
-  scannerCloseBtn: {
-    position: "absolute",
-    top: 16,
-    right: 16,
-    backgroundColor: "rgba(17,24,39,0.6)",
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 10,
-  },
+
 
   scannerHint: {
     position: "absolute",
@@ -766,11 +750,7 @@ const styles = {
     paddingVertical: 10,
     borderRadius: 24,
   },
-  scannerHintText: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "500",
-  },
+
   container: {
     flex: 1,
     backgroundColor: BG,
@@ -938,6 +918,7 @@ const styles = {
     zIndex: 100,
   },
 
+   
   scannerFrame: {
     position: "absolute",
     top: "30%",
@@ -961,12 +942,7 @@ const styles = {
     justifyContent: "center",
   },
 
-  scannerHint: {
-    position: "absolute",
-    bottom: 50,
-    width: "100%",
-    alignItems: "center",
-  },
+
 
   scannerHintText: {
     color: "#fff",

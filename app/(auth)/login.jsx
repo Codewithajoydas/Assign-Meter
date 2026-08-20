@@ -67,7 +67,7 @@ const Login = () => {
       }
     } catch (error) {
       console.log(error);
-      Alert.alert("Error", "Cannot connect to server");
+      Alert.alert("Error", `${error}`);
     } finally {
       setSending(false);
     }
